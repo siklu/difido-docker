@@ -1,10 +1,12 @@
-FROM openjdk:latest 
+FROM adoptopenjdk/openjdk8
+#:x86_64-debian
+#FROM openjdk:latest 
 
 WORKDIR /difido
 
 ADD files/ /difido
 
-EXPOSE 80
+EXPOSE 8080
 
 USER root
 

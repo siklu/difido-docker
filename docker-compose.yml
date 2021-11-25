@@ -1,7 +1,7 @@
 version: "3"
 services:
   elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
     deploy: 
       replicas: 1
       restart_policy:
@@ -14,24 +14,40 @@ services:
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
+      - discovery.type=single-node
     ulimits:
-      nproc: 3000
+      nproc: 4096
       nofile: 65536
-      memlock: -1
+      memlock: 
+        soft: -1
+        hard: -1
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.15.2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 5601:5601
+    networks:
+      - webnet
+    environment:
+      SERVER_NAME: kibana
+      ELASTICSEARCH_HOSTS: '["http://192.168.11.71:9200"]'
   difido:
-    image: itaiag/difido:difido
+    image: difido
     deploy:
       replicas: 1 
       restart_policy:
         condition: on-failure
     ports:
-      - 80:80
+      - 8080:8080
     networks:
       - webnet
   visualizer:
     image: dockersamples/visualizer:stable
     ports:
-      - "8080:8080"
+      - "8081:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     deploy:
